@@ -1,4 +1,8 @@
+
 import com.formdev.flatlaf.FlatDarculaLaf;
+
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -10,6 +14,7 @@ import java.net.URL;
 public class Main {
     public static void main(String[] args) {
         System.out.println("Welcome to project RUdra Chat Client CLI.");
+        new JFXPanel();
 
         // Create a new JFrame for the loading screen
         FlatDarculaLaf.setup();
@@ -30,8 +35,7 @@ public class Main {
         JPanel roundedPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
-                if (g instanceof Graphics2D) {
-                    Graphics2D g2d = (Graphics2D) g;
+                if (g instanceof Graphics2D g2d) {
                     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g2d.setColor(getBackground());
                     g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
@@ -48,23 +52,20 @@ public class Main {
         loadingFrame.setVisible(true);
 
         // Create a Timer that will animate the circle of dots
-        Timer animationTimer = new Timer(100, e -> loadingPanel.nextDot());
+        Timer animationTimer = new Timer(50, e -> loadingPanel.nextDot());
         animationTimer.start();
 
         // Create a Timer that will display the login frame after 5 seconds
-        Timer timer = new Timer(5000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Stop the animation
-                animationTimer.stop();
+        Timer timer = new Timer(5000, e -> {
+            // Stop the animation
+            animationTimer.stop();
 
-                // Hide the loading screen
-                loadingFrame.setVisible(false);
-                loadingFrame.dispose();
+            // Hide the loading screen
+            loadingFrame.setVisible(false);
+            loadingFrame.dispose();
 
-                // Display the login frame
-                new LoginGUI();
-            }
+            // Display the MainMenu
+            Platform.runLater(MainMenu::createMenu);
         });
 
         // Start the Timer
@@ -86,11 +87,12 @@ class LoadingPanel extends JPanel {
             e.printStackTrace();
         }
     }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(), this);
+        g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(), this);
 
         g.setColor(Color.WHITE);
         for (int i = 0; i < 12; i++) {

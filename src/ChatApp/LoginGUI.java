@@ -1,3 +1,5 @@
+package ChatApp;
+
 import com.formdev.flatlaf.FlatDarculaLaf;
 
 import javax.swing.*;

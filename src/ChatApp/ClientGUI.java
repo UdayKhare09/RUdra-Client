@@ -1,3 +1,5 @@
+package ChatApp;
+
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -5,7 +7,11 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.util.Base64;
 import java.util.List;
 
 public class ClientGUI {
@@ -13,12 +19,14 @@ public class ClientGUI {
     private JTextArea messageArea;
     private JTextField messageField;
     private JButton sendButton;
+    private JButton sendImageButton;
+    private JButton sendVoiceButton;
 
     public ClientGUI() {
         FlatDarculaLaf.setup();
-        JFrame frame = new JFrame("Hi User");
+        JFrame frame = new JFrame("Hi ChatApp.User");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(450, 400);
+        frame.setSize(500, 400);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         URL iconURL = getClass().getResource("/Resources/Icon.png");
@@ -61,7 +69,7 @@ public class ClientGUI {
         frame.add(messageScrollPane, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel();
-        messageField = new JTextField(20);
+        messageField = new JTextField(15);
         messageField.addActionListener(e -> sendMessage());
         sendButton = new JButton("Send");
         sendButton.addActionListener(e -> {
@@ -72,6 +80,32 @@ public class ClientGUI {
                 messageField.setText("");
             }
         });
+
+        sendImageButton = new JButton("Send Image");
+        sendImageButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                try {
+                    byte[] fileContent = Files.readAllBytes(selectedFile.toPath());
+                    String encodedString = Base64.getEncoder().encodeToString(fileContent);
+                    ChatClient.sendMessage(userList.getSelectedValue(), encodedString+"^image");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+
+        sendVoiceButton = new JButton("Send Voice");
+        sendVoiceButton.addActionListener(e -> {
+            String selectedUser = userList.getSelectedValue();
+            if (selectedUser != null) {
+                ChatClient.sendVoiceMessage(selectedUser);
+            }
+        });
+        bottomPanel.add(sendVoiceButton);
+        bottomPanel.add(sendImageButton);
         bottomPanel.add(messageField);
         bottomPanel.add(sendButton);
         frame.add(bottomPanel, BorderLayout.SOUTH);
